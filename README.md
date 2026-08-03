@@ -52,8 +52,6 @@ The objectives of this project were to:
 
 # Solution Architecture
 
-> **Replace this placeholder with your Draw.io architecture diagram.**
-
 ![Project Architecture](assets/images/jenkins-cicd-architecture.png)
 
 ---
@@ -137,8 +135,7 @@ jenkins-cicd-pipeline/
 │   └── video-script.md
 │
 ├── assets/
-│   ├── images/
-│
+|   ├── images/
 └── 
 ```
 
