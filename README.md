@@ -52,7 +52,7 @@ The objectives of this project were to:
 
 # Solution Architecture
 
-![Project Architecture](assets/images/jenkins-cicd-architecture.png)
+![Project Architecture](assets/images/jenkins-cicd-architecture.gif)
 
 ---
 
@@ -61,31 +61,78 @@ The objectives of this project were to:
 The Continuous Integration workflow implemented in this project follows the sequence below:
 
 ```text
-Developer
-     │
-     ▼
-GitHub Repository
-     │
-     ▼
-Jenkins Pipeline
-     │
-     ▼
-Checkout Source Code
-     │
-     ▼
-Maven Package
-     │
-     ▼
-Docker Build
-     │
-     ▼
-Docker Login
-     │
-     ▼
-Push Docker Image
-     │
-     ▼
-Sonatype Nexus Repository
+
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                    DEVELOPER                                                 │
+│                                                                                              │
+│   Writes Java Code • Updates Jenkinsfile • Commits Changes                                   │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+                                         │
+                                         │ git push
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                  GitHub Repository                                           │
+│                                                                                              │
+│  Java Maven Application                                                                      │
+│  Jenkinsfile                                                                                 │
+│  Dockerfile                                                                                  │
+│  pom.xml                                                                                     │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+                                         │
+                                         │ Git Plugin / Poll SCM / Webhook
+                                         ▼
+══════════════════════════════════════════════════════════════════════════════════════════════════
+                          AWS EC2 Ubuntu Instance
+══════════════════════════════════════════════════════════════════════════════════════════════════
+
+        ┌─────────────────────────────────────────────────────────────┐
+        │                     Jenkins CI Server                       │
+        │                                                             │
+        │  Stage 1                                                    │
+        │ Checkout Source Code                                        │
+        │                                                             │
+        │              │                                              │
+        │              ▼                                              │
+        │  Stage 2                                                    │
+        │ Maven Build                                                 │
+        │  mvn package                                                │
+        │                                                             │
+        │              │                                              │
+        │              ▼                                              │
+        │  Stage 3                                                    │
+        │  Docker Build                                               │
+        │  docker build                                               │
+        │                                                             │
+        │              │                                              │
+        │              ▼                                              │
+        │  Stage 4                                                    │
+        │  Docker Login                                               │
+        │                                                             │
+        │              │                                              │
+        │              ▼                                              │
+        │  Stage 5                                                    │
+        │  Docker Push                                                │
+        └─────────────────────────────────────────────────────────────┘
+                                         │
+                                         │
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│                         Sonatype Nexus Repository Manager                                    │
+│                                                                                              │
+│              Docker Hosted Repository                                                        │
+│                                                                                              │
+│              java-maven-app:1.1                                                              │
+│                                                                                              │
+│              Private Docker Registry                                                         │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+                                         │
+                                         │
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│                              Ready for Deployment                                            │
+│                                                                                              │
+│      Docker Image Available for Kubernetes / Docker Host / Future CD                         │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 This automated workflow eliminates repetitive manual tasks while ensuring every successful build produces a deployable Docker image stored in a centralized artifact repository.
